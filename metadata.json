@@ -1,6 +1,6 @@
 {
-  "name": "Callora.pro - 24/7 Automated Growth Systems",
-  "description": "Callora.pro installs simple, 24/7 automated growth systems for contractors and home services to recover missed calls, follow up with leads, and book more jobs.",
+  "name": "Callora.pro | AI Missed Call Recovery & Automation for Home Services",
+  "description": "Stop losing revenue to missed calls. Callora installs 24/7 automated growth systems that recover missed calls, book appointments, and collect reviews.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

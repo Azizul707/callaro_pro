@@ -3,7 +3,7 @@
  * Built by MA Hakim
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
 import ProblemMatrix from './components/ProblemMatrix';
@@ -15,14 +15,17 @@ import LeadRecoveryDeepDive from './components/LeadRecoveryDeepDive';
 import ReputationEngineDeepDive from './components/ReputationEngineDeepDive';
 import DailyComparison from './components/DailyComparison';
 import GatedRoiCalculator from './components/GatedRoiCalculator';
-import PricingGrid from './components/PricingGrid';
 import FaqSection from './components/FaqSection';
 import Footer from './components/Footer';
-import AuditBookingModal from './components/AuditBookingModal';
 import DatabaseStatusBanner from './components/DatabaseStatusBanner';
-import ServiceOrderModal, { SelectedServicePlan } from './components/ServiceOrderModal';
-import AdminDashboard from './components/admin/AdminDashboard';
-import LeadTriageSimulator from './app/simulator/page';
+import { SelectedServicePlan } from './components/ServiceOrderModal';
+
+// Code-split heavy below-the-fold components and standalone views
+const PricingGrid = lazy(() => import('./components/PricingGrid'));
+const AuditBookingModal = lazy(() => import('./components/AuditBookingModal'));
+const ServiceOrderModal = lazy(() => import('./components/ServiceOrderModal'));
+const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard'));
+const LeadTriageSimulator = lazy(() => import('./app/simulator/page'));
 
 export default function App() {
   const [isAdminRoute, setIsAdminRoute] = useState(false);
@@ -94,11 +97,31 @@ export default function App() {
   };
 
   if (isAdminRoute) {
-    return <AdminDashboard />;
+    return (
+      <Suspense
+        fallback={
+          <div className="min-h-screen bg-[#09090b] flex items-center justify-center text-zinc-400 font-code text-xs">
+            Loading Admin Center...
+          </div>
+        }
+      >
+        <AdminDashboard />
+      </Suspense>
+    );
   }
 
   if (isSimulatorRoute) {
-    return <LeadTriageSimulator />;
+    return (
+      <Suspense
+        fallback={
+          <div className="min-h-screen bg-[#09090b] flex items-center justify-center text-zinc-400 font-code text-xs">
+            Loading AI Simulator...
+          </div>
+        }
+      >
+        <LeadTriageSimulator />
+      </Suspense>
+    );
   }
 
   return (
@@ -153,7 +176,15 @@ export default function App() {
         <GatedRoiCalculator onBookAuditClick={() => handleOpenAuditModal('Calculator CTA')} />
 
         {/* SECTION 12: TRANSPARENT PRICING GRID (6 CARDS SPLIT-PRICING) */}
-        <PricingGrid onSelectPlan={handleSelectPlan} />
+        <Suspense
+          fallback={
+            <div className="py-24 text-center font-code text-xs text-zinc-500">
+              Loading Pricing Matrix...
+            </div>
+          }
+        >
+          <PricingGrid onSelectPlan={handleSelectPlan} />
+        </Suspense>
 
         {/* SECTION 13: FAQ + CONVERSION TERMINAL */}
         <FaqSection onBookAuditClick={() => handleOpenAuditModal('Final CTA Terminal')} />
@@ -163,18 +194,26 @@ export default function App() {
       <Footer onBookAuditClick={() => handleOpenAuditModal('Footer')} />
 
       {/* Free Revenue Audit Booking Client Component */}
-      <AuditBookingModal
-        isOpen={isAuditModalOpen}
-        onClose={handleCloseAuditModal}
-        defaultSource={auditModalSource}
-      />
+      <Suspense fallback={null}>
+        {isAuditModalOpen && (
+          <AuditBookingModal
+            isOpen={isAuditModalOpen}
+            onClose={handleCloseAuditModal}
+            defaultSource={auditModalSource}
+          />
+        )}
+      </Suspense>
 
       {/* Dedicated Service Order / Checkout Modal */}
-      <ServiceOrderModal
-        isOpen={isOrderModalOpen}
-        onClose={handleCloseOrderModal}
-        selectedPlan={selectedPlan}
-      />
+      <Suspense fallback={null}>
+        {isOrderModalOpen && (
+          <ServiceOrderModal
+            isOpen={isOrderModalOpen}
+            onClose={handleCloseOrderModal}
+            selectedPlan={selectedPlan}
+          />
+        )}
+      </Suspense>
     </div>
   );
 }

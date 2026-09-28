@@ -139,9 +139,18 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="hidden md:inline-block text-xs font-mono text-zinc-400">
-              {adminUserEmail}
-            </span>
+            <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800">
+              <Image
+                src="https://i.ibb.co.com/fdLzRRFn/ma-hakim-image.png"
+                alt="Muhammad - Avatar"
+                width={40}
+                height={40}
+                className="w-8 h-8 rounded-full object-cover border border-zinc-700/60"
+              />
+              <span className="hidden md:inline-block text-xs font-mono text-zinc-300">
+                {adminUserEmail}
+              </span>
+            </div>
             <a
               href="/"
               target="_blank"

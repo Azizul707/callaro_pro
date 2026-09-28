@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import FounderAvatar from '@/src/assets/founderAvatar';
+import Image from '@/src/components/ui/NextImage';
 
 export const FounderStory: React.FC = () => {
   return (
@@ -12,8 +12,17 @@ export const FounderStory: React.FC = () => {
           <div className="lg:col-span-5">
             <div className="card-border-glow bg-surface-card rounded-2xl p-6 overflow-hidden">
               <div className="w-full aspect-square rounded-xl bg-surface-raised flex flex-col items-center justify-center relative overflow-hidden border border-border-subtle p-6">
-                {/* Founder Headshot Asset (matching ma_hakim_image.png) */}
-                <FounderAvatar className="w-40 h-40 mb-4" />
+                {/* Founder Headshot with next/image */}
+                <div className="w-36 h-36 rounded-full overflow-hidden border-2 border-primary/40 shadow-xl mb-4 relative bg-zinc-900">
+                  <Image
+                    src="https://i.ibb.co.com/fdLzRRFn/ma-hakim-image.png"
+                    alt="Muhammad - Avatar"
+                    width={144}
+                    height={144}
+                    className="w-full h-full object-cover rounded-full"
+                    priority
+                  />
+                </div>
 
                 <h4 className="text-xl font-bold text-text-primary">MA Hakim</h4>
                 <p className="font-code text-xs text-text-dim">Founder &amp; Principal Systems Architect</p>

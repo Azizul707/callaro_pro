@@ -151,7 +151,9 @@ export const GatedRoiCalculator: React.FC<GatedRoiCalculatorProps> = ({ onBookAu
                 <form onSubmit={handleUnlockSubmit} className="space-y-3">
                   <div className="relative">
                     <input
+                      id="roi-unlock-email"
                       type="email"
+                      aria-label="Business Email Address"
                       value={emailInput}
                       onChange={(e) => {
                         setEmailInput(e.target.value);
