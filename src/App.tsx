@@ -17,7 +17,6 @@ import DailyComparison from './components/DailyComparison';
 import GatedRoiCalculator from './components/GatedRoiCalculator';
 import FaqSection from './components/FaqSection';
 import Footer from './components/Footer';
-import DatabaseStatusBanner from './components/DatabaseStatusBanner';
 import { SelectedServicePlan } from './components/ServiceOrderModal';
 
 // Code-split heavy below-the-fold components and standalone views
@@ -132,9 +131,6 @@ export default function App() {
         <div className="absolute top-[45%] -left-[12%] w-[650px] h-[650px] bg-secondary/5 rounded-full blur-[170px]"></div>
         <div className="absolute top-[75%] -right-[10%] w-[700px] h-[700px] bg-primary/6 rounded-full blur-[180px]"></div>
       </div>
-
-      {/* Supabase Connection Diagnostics Banner */}
-      <DatabaseStatusBanner />
 
       {/* SECTION 01: BRANDING & NAVIGATION CONTAINER - STICKY TOP */}
       <header className="sticky top-0 z-50 w-full">
