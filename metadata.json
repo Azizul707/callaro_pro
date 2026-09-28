@@ -1,0 +1,6 @@
+{
+  "name": "Callora.pro - 24/7 Automated Growth Systems",
+  "description": "Callora.pro installs simple, 24/7 automated growth systems for contractors and home services to recover missed calls, follow up with leads, and book more jobs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
