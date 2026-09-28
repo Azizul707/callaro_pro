@@ -12,28 +12,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onCallDemoClick,
 }) => {
   return (
-    <section className="relative pt-16 pb-24 md:pt-24 md:pb-28 px-6 overflow-hidden">
-      {/* Background Image Wrapper: Multi-Profile Trades & Home Service Professionals Collage */}
-      <div className="absolute inset-0 -z-10 w-full h-full overflow-hidden pointer-events-none select-none">
-        {/* Background Image with optimized coverage and tuned opacity */}
-        <img
-          src="https://i.ibb.co.com/XxVMPbdT/Chat-GPT-Image-Sep-28-2026-07-21-37-PM.jpg"
-          alt="Home service professionals and contractors collage"
-          referrerPolicy="no-referrer"
-          className="w-full h-full object-cover object-top opacity-35 filter contrast-125 brightness-105"
-          loading="eager"
-        />
+    <section className="relative overflow-hidden w-full pt-16 pb-24 md:pt-24 md:pb-28 px-6 bg-zinc-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900 via-zinc-950 to-zinc-950">
+      {/* Subtle top ambient glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-primary/10 blur-[130px] rounded-full pointer-events-none -z-10"></div>
 
-        {/* Radial Mask / Gradient Overlay: Soft center focus while allowing the tradesmen collage to pop on the sides and background */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(9,9,11,0.35)_0%,_rgba(9,9,11,0.75)_50%,_rgba(9,9,11,0.95)_85%)]"></div>
-
-        {/* Ambient Top & Bottom Vignettes for Seamless Theme Blending */}
-        <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#09090b] via-[#09090b]/70 to-transparent"></div>
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#09090b] via-[#09090b]/80 to-transparent"></div>
-      </div>
-
-      {/* Main Hero Content Container (relative z-10 for clean layering) */}
-      <div className="relative z-10 max-w-[1200px] mx-auto text-center flex flex-col items-center">
+      {/* Main Hero Content Container */}
+      <div className="max-w-[1200px] mx-auto text-center flex flex-col items-center">
         {/* Eyebrow Pill */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface-raised/90 backdrop-blur-md border border-border-subtle mb-8 hover:border-primary/40 transition-colors shadow-lg">
           <span className="w-2 h-2 rounded-full bg-primary radar-pulse"></span>
