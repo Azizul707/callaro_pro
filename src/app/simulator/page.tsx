@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import AuditBookingModal from '../../components/AuditBookingModal';
+import { validateAndSaveSimulatorEmail } from '../actions/leadActions';
+import { useToast } from '../../components/ui/Toast';
 
 interface TriageResult {
   score: number;
@@ -76,6 +78,7 @@ const PRESET_PROMPTS = [
 ];
 
 export default function LeadTriageSimulator() {
+  const toast = useToast();
   const [inputValue, setInputValue] = useState('');
   const [submittedMessage, setSubmittedMessage] = useState(
     'Help! Water is gushing from my bathroom ceiling right now, do you have someone available today?'
@@ -84,6 +87,27 @@ export default function LeadTriageSimulator() {
   const [result, setResult] = useState<TriageResult | null>(null);
   const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState('10:42 AM');
+
+  // Lead Magnet Email Gating State
+  const [isUnlocked, setIsUnlocked] = useState<boolean>(false);
+  const [gateEmail, setGateEmail] = useState('');
+  const [isSubmittingEmail, setIsSubmittingEmail] = useState(false);
+  const [gateError, setGateError] = useState<string | null>(null);
+
+  // Check persistent unlock state from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('callora_simulator_unlocked');
+      const email = localStorage.getItem('callora_user_email');
+      if (stored === 'true') {
+        setIsUnlocked(true);
+      } else if (email) {
+        setGateEmail(email);
+      }
+    } catch {
+      // LocalStorage handling
+    }
+  }, []);
 
   useEffect(() => {
     const updateTime = () => {
@@ -184,6 +208,7 @@ export default function LeadTriageSimulator() {
   };
 
   const handlePresetClick = (presetText: string) => {
+    if (!isUnlocked) return;
     setInputValue('');
     setSubmittedMessage(presetText);
     runAnalysis(presetText);
@@ -200,6 +225,44 @@ export default function LeadTriageSimulator() {
     setInputValue('');
     // Trigger analysis
     runAnalysis(textToSend);
+  };
+
+  const handleUnlockGateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setGateError(null);
+
+    const email = gateEmail.trim();
+    if (!email) {
+      setGateError('Please enter your business email.');
+      return;
+    }
+
+    setIsSubmittingEmail(true);
+
+    try {
+      const res = await validateAndSaveSimulatorEmail(email);
+      if (!res.success) {
+        const err = res.error || 'Please enter a valid personal or business email.';
+        setGateError(err);
+        toast.error('Email Verification', err);
+        setIsSubmittingEmail(false);
+        return;
+      }
+
+      setIsUnlocked(true);
+      toast.success('Analysis Unlocked!', 'Lead score and AI actions revealed.');
+
+      try {
+        localStorage.setItem('callora_simulator_unlocked', 'true');
+        localStorage.setItem('callora_user_email', email);
+      } catch {
+        // storage fallback
+      }
+    } catch {
+      setGateError('Verification service error. Please try again.');
+    } finally {
+      setIsSubmittingEmail(false);
+    }
   };
 
   return (
@@ -227,20 +290,29 @@ export default function LeadTriageSimulator() {
           </p>
         </div>
 
-        {/* Quick Preset Buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
-          <span className="text-xs font-code text-zinc-400 mr-1">Try Presets:</span>
-          {PRESET_PROMPTS.map((preset, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => handlePresetClick(preset.text)}
-              className="text-xs font-code px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white hover:border-[#ff6a3d]/50 hover:bg-zinc-800/80 transition-all cursor-pointer"
-            >
-              {preset.label}
-            </button>
-          ))}
-        </div>
+        {/* Quick Preset Buttons (Hidden until isUnlocked is true) */}
+        {isUnlocked ? (
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-8 animate-in fade-in duration-300">
+            <span className="text-xs font-code text-zinc-400 mr-1">Try Presets:</span>
+            {PRESET_PROMPTS.map((preset, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => handlePresetClick(preset.text)}
+                className="text-xs font-code px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white hover:border-[#ff6a3d]/50 hover:bg-zinc-800/80 transition-all cursor-pointer"
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="mb-8 flex justify-center">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-zinc-900/80 border border-zinc-800 text-xs font-code text-zinc-400">
+              <span className="material-symbols-outlined text-[15px] text-[#ff6a3d]">lock</span>
+              <span>Test with your own custom inquiry below to unlock triage presets</span>
+            </div>
+          </div>
+        )}
 
         {/* Two-Column Grid: Left (Smartphone Mock) | Right (AI Brain) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-16">
@@ -371,115 +443,197 @@ export default function LeadTriageSimulator() {
                 </div>
               </div>
             ) : result ? (
-              <div
-                className={`rounded-2xl bg-[#0c0d12]/90 border p-6 md:p-8 backdrop-blur-xl transition-all duration-500 ease-out animate-in fade-in slide-in-from-bottom-3 ${result.glowColor}`}
-              >
-                {/* Header / Score Gauge */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-zinc-800/80">
-                  <div>
-                    <span className="text-[11px] font-code text-zinc-400 uppercase tracking-wider block mb-1">
-                      Lead Classification
-                    </span>
-                    <div
-                      className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs font-bold font-code ${result.badgeBg} ${result.badgeBorder} ${result.statusColor}`}
-                    >
-                      {result.status}
-                    </div>
-                  </div>
-
-                  {/* Circular Score Gauge Display */}
-                  <div className="flex items-center gap-4 bg-zinc-900/80 px-4 py-2.5 rounded-xl border border-zinc-800">
-                    <div className="text-right">
-                      <span className="text-[10px] font-code text-zinc-400 uppercase block">
-                        Lead Quality Score
-                      </span>
-                      <span className="text-2xl font-black text-white font-code">
-                        {result.score}
-                        <span className="text-xs text-zinc-500 font-normal">/100</span>
-                      </span>
-                    </div>
-
-                    {/* Circular visual meter */}
-                    <div className="relative w-12 h-12 flex items-center justify-center">
-                      <svg className="w-12 h-12 -rotate-90" viewBox="0 0 36 36">
-                        <path
-                          className="text-zinc-800"
-                          strokeWidth="3.5"
-                          stroke="currentColor"
-                          fill="none"
-                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        />
-                        <path
-                          className={
-                            result.statusType === 'emergency'
-                              ? 'text-rose-500'
-                              : result.statusType === 'warm'
-                              ? 'text-amber-400'
-                              : 'text-zinc-500'
-                          }
-                          strokeDasharray={`${result.score}, 100`}
-                          strokeWidth="3.5"
-                          strokeLinecap="round"
-                          stroke="currentColor"
-                          fill="none"
-                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        />
-                      </svg>
-                      <span className="absolute text-[11px] font-bold text-white font-code">
-                        {result.score}%
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Card 1: System Output Card (AI Action) */}
-                <div className="mt-6 mb-4 p-4 rounded-xl bg-zinc-900/70 border border-zinc-800">
-                  <div className="flex items-center gap-2 text-xs font-code text-text-primary uppercase tracking-wider font-semibold mb-1.5">
-                    <span className="material-symbols-outlined text-[16px] text-[#ff6a3d]">
-                      send_and_archive
-                    </span>
-                    <span>Automated AI Action Taken</span>
-                  </div>
-                  <p className="text-sm text-zinc-200 leading-relaxed pl-6">
-                    {result.aiAction}
-                  </p>
-                </div>
-
-                {/* Card 2: The Business Impact Card (The "Aha!" Benefit) */}
+              <div className="relative rounded-2xl overflow-hidden">
+                {/* Results Card (Heavily Blurred when !isUnlocked) */}
                 <div
-                  className={`p-4 rounded-xl bg-zinc-900/90 border transition-all ${
-                    result.statusType === 'emergency'
-                      ? 'border-rose-500/50 bg-rose-950/10'
-                      : result.statusType === 'warm'
-                      ? 'border-amber-500/50 bg-amber-950/10'
-                      : 'border-zinc-700/60 bg-zinc-900/40'
+                  className={`rounded-2xl bg-[#0c0d12]/90 border p-6 md:p-8 backdrop-blur-xl transition-all duration-500 ease-out ${
+                    result.glowColor
+                  } ${
+                    !isUnlocked
+                      ? 'blur-md pointer-events-none select-none opacity-40'
+                      : 'opacity-100'
                   }`}
                 >
-                  <div className="flex items-center gap-2 text-xs font-code font-bold uppercase tracking-wider mb-1.5 text-white">
-                    <span className="material-symbols-outlined text-[16px] text-status-positive">
-                      trending_up
-                    </span>
-                    <span>The Real Business Impact</span>
+                  {/* Header / Score Gauge */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-zinc-800/80">
+                    <div>
+                      <span className="text-[11px] font-code text-zinc-400 uppercase tracking-wider block mb-1">
+                        Lead Classification
+                      </span>
+                      <div
+                        className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs font-bold font-code ${result.badgeBg} ${result.badgeBorder} ${result.statusColor}`}
+                      >
+                        {result.status}
+                      </div>
+                    </div>
+
+                    {/* Circular Score Gauge Display */}
+                    <div className="flex items-center gap-4 bg-zinc-900/80 px-4 py-2.5 rounded-xl border border-zinc-800">
+                      <div className="text-right">
+                        <span className="text-[10px] font-code text-zinc-400 uppercase block">
+                          Lead Quality Score
+                        </span>
+                        <span className="text-2xl font-black text-white font-code">
+                          {result.score}
+                          <span className="text-xs text-zinc-500 font-normal">/100</span>
+                        </span>
+                      </div>
+
+                      {/* Circular visual meter */}
+                      <div className="relative w-12 h-12 flex items-center justify-center">
+                        <svg className="w-12 h-12 -rotate-90" viewBox="0 0 36 36">
+                          <path
+                            className="text-zinc-800"
+                            strokeWidth="3.5"
+                            stroke="currentColor"
+                            fill="none"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                          />
+                          <path
+                            className={
+                              result.statusType === 'emergency'
+                                ? 'text-rose-500'
+                                : result.statusType === 'warm'
+                                ? 'text-amber-400'
+                                : 'text-zinc-500'
+                            }
+                            strokeDasharray={`${result.score}, 100`}
+                            strokeWidth="3.5"
+                            strokeLinecap="round"
+                            stroke="currentColor"
+                            fill="none"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                          />
+                        </svg>
+                        <span className="absolute text-[11px] font-bold text-white font-code">
+                          {result.score}%
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-sm text-zinc-300 leading-relaxed font-medium pl-6">
-                    {result.businessBenefit}
-                  </p>
+
+                  {/* Card 1: System Output Card (AI Action) */}
+                  <div className="mt-6 mb-4 p-4 rounded-xl bg-zinc-900/70 border border-zinc-800">
+                    <div className="flex items-center gap-2 text-xs font-code text-text-primary uppercase tracking-wider font-semibold mb-1.5">
+                      <span className="material-symbols-outlined text-[16px] text-[#ff6a3d]">
+                        send_and_archive
+                      </span>
+                      <span>Automated AI Action Taken</span>
+                    </div>
+                    <p className="text-sm text-zinc-200 leading-relaxed pl-6">
+                      {result.aiAction}
+                    </p>
+                  </div>
+
+                  {/* Card 2: The Business Impact Card (The "Aha!" Benefit) */}
+                  <div
+                    className={`p-4 rounded-xl bg-zinc-900/90 border transition-all ${
+                      result.statusType === 'emergency'
+                        ? 'border-rose-500/50 bg-rose-950/10'
+                        : result.statusType === 'warm'
+                        ? 'border-amber-500/50 bg-amber-950/10'
+                        : 'border-zinc-700/60 bg-zinc-900/40'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 text-xs font-code font-bold uppercase tracking-wider mb-1.5 text-white">
+                      <span className="material-symbols-outlined text-[16px] text-status-positive">
+                        trending_up
+                      </span>
+                      <span>The Real Business Impact</span>
+                    </div>
+                    <p className="text-sm text-zinc-300 leading-relaxed font-medium pl-6">
+                      {result.businessBenefit}
+                    </p>
+                  </div>
+
+                  {/* Live Re-test Helper */}
+                  <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-code text-zinc-400 pt-4 border-t border-zinc-800/80">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-status-positive"></span>
+                      <span>Deterministic rule evaluation + Natural language match</span>
+                    </div>
+                    <button
+                      onClick={() => runAnalysis(submittedMessage)}
+                      className="hover:text-white transition-colors underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>Re-evaluate prompt</span>
+                      <span className="material-symbols-outlined text-[14px]">refresh</span>
+                    </button>
+                  </div>
                 </div>
 
-                {/* Live Re-test Helper */}
-                <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-code text-zinc-400 pt-4 border-t border-zinc-800/80">
-                  <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-status-positive"></span>
-                    <span>Deterministic rule evaluation + Natural language match</span>
+                {/* Absolute Positioned Email Capture Overlay (Only when !isUnlocked) */}
+                {!isUnlocked && (
+                  <div className="absolute inset-0 z-20 flex items-center justify-center p-4 bg-zinc-950/75 backdrop-blur-sm">
+                    <div className="w-full max-w-md bg-zinc-900/95 border border-[#ff6a3d]/40 rounded-2xl p-6 md:p-8 text-center shadow-[0_0_50px_rgba(255,106,61,0.25)] relative">
+                      <div className="w-12 h-12 rounded-2xl bg-[#ff6a3d]/15 border border-[#ff6a3d]/30 text-[#ff6a3d] flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(255,106,61,0.35)]">
+                        <span className="material-symbols-outlined text-2xl">lock</span>
+                      </div>
+
+                      <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#ff6a3d]/10 border border-[#ff6a3d]/30 text-[#ff6a3d] font-code text-[11px] mb-2 font-semibold">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#ff6a3d] animate-pulse"></span>
+                        <span>Analysis Complete!</span>
+                      </div>
+
+                      <h3 className="text-xl md:text-2xl font-extrabold text-white mb-2">
+                        Unlock Lead Score &amp; AI Action
+                      </h3>
+                      <p className="text-xs text-zinc-400 mb-5 leading-relaxed">
+                        Enter your email to unlock your Lead Score and see the AI response.
+                      </p>
+
+                      <form onSubmit={handleUnlockGateSubmit} className="space-y-3">
+                        <div className="relative">
+                          <input
+                            type="email"
+                            required
+                            aria-label="Email Address"
+                            value={gateEmail}
+                            onChange={(e) => {
+                              setGateEmail(e.target.value);
+                              if (gateError) setGateError(null);
+                            }}
+                            placeholder="e.g. dave@apexplumbing.com"
+                            disabled={isSubmittingEmail}
+                            className="w-full px-4 py-3 rounded-xl bg-zinc-950 border border-zinc-700/80 focus:border-[#ff6a3d] focus:ring-1 focus:ring-[#ff6a3d] text-white text-xs font-sans outline-none transition-all placeholder:text-zinc-600"
+                          />
+                          <span className="material-symbols-outlined absolute right-3.5 top-3 text-zinc-500 text-[18px] pointer-events-none">
+                            mail
+                          </span>
+                        </div>
+
+                        {gateError && (
+                          <div className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-code text-left flex items-start gap-1.5">
+                            <span className="material-symbols-outlined text-[15px] shrink-0 mt-0.5">error</span>
+                            <span>{gateError}</span>
+                          </div>
+                        )}
+
+                        <button
+                          type="submit"
+                          disabled={isSubmittingEmail}
+                          className="w-full py-3 rounded-xl bg-gradient-to-r from-[#ff6a3d] to-[#fbbf24] text-zinc-950 font-bold border-none hover:scale-[1.02] transition-transform text-xs font-code flex items-center justify-center gap-2 active:scale-[0.98] shadow-[0_0_20px_rgba(255,106,61,0.4)] cursor-pointer disabled:opacity-60"
+                        >
+                          {isSubmittingEmail ? (
+                            <>
+                              <span className="w-3.5 h-3.5 border-2 border-zinc-950 border-t-transparent rounded-full animate-spin"></span>
+                              <span>Unlocking Score...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>Unlock Results</span>
+                              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                            </>
+                          )}
+                        </button>
+                      </form>
+
+                      <p className="text-[10px] font-code text-zinc-500 mt-3">
+                        Instant unlock · Real contractor analytics · Zero spam
+                      </p>
+                    </div>
                   </div>
-                  <button
-                    onClick={() => runAnalysis(submittedMessage)}
-                    className="hover:text-white transition-colors underline flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>Re-evaluate prompt</span>
-                    <span className="material-symbols-outlined text-[14px]">refresh</span>
-                  </button>
-                </div>
+                )}
               </div>
             ) : null}
           </div>

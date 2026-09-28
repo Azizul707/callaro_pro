@@ -38,14 +38,14 @@ export default function App() {
         setIsAdminRoute(path.startsWith('/admin') || hash === '#admin');
         setIsSimulatorRoute(path.startsWith('/simulator') || hash === '#simulator');
 
-        if (path === '/calculator') {
+        if (path === '/calculator' || hash === '#calculator') {
           setTimeout(() => {
             const el = document.getElementById('calculator');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
           }, 100);
         }
 
-        if (path === '/speed-audit') {
+        if (path === '/speed-audit' || hash === '#speed-audit') {
           setTimeout(() => {
             setAuditModalSource('Speed-to-Lead Audit Preview');
             setIsAuditModalOpen(true);
@@ -57,9 +57,36 @@ export default function App() {
     checkRoute();
     window.addEventListener('popstate', checkRoute);
     window.addEventListener('hashchange', checkRoute);
+
+    // Global link interceptor for slash routes like /simulator, /admin, /
+    const handleDocumentClick = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement)?.closest('a');
+      if (!target) return;
+      const href = target.getAttribute('href');
+      if (
+        href &&
+        (href === '/' ||
+          href.startsWith('/?') ||
+          href.startsWith('/simulator') ||
+          href.startsWith('/admin') ||
+          href.startsWith('/calculator') ||
+          href.startsWith('/speed-audit')) &&
+        !href.startsWith('http') &&
+        !target.getAttribute('target')
+      ) {
+        e.preventDefault();
+        window.history.pushState({}, '', href);
+        checkRoute();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+
+    document.addEventListener('click', handleDocumentClick);
+
     return () => {
       window.removeEventListener('popstate', checkRoute);
       window.removeEventListener('hashchange', checkRoute);
+      document.removeEventListener('click', handleDocumentClick);
     };
   }, []);
 

@@ -60,12 +60,17 @@ export const Footer: React.FC<FooterProps> = ({ onBookAuditClick }) => {
                 </a>
               </li>
               <li>
-                <a className="hover:text-primary transition-colors" href="#roi-calculator">
+                <a className="hover:text-primary transition-colors" href="/calculator">
                   ROI Calculator
                 </a>
               </li>
               <li>
-                <a className="hover:text-primary transition-colors" href="#faq">
+                <a className="hover:text-primary transition-colors" href="/simulator">
+                  Lead Simulator
+                </a>
+              </li>
+              <li>
+                <a className="hover:text-primary transition-colors" href="/#faq">
                   FAQ
                 </a>
               </li>

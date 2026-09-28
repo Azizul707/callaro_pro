@@ -59,6 +59,53 @@ export async function validateAndSaveCalculatorEmail(
 }
 
 /**
+ * Server Action: Validates and stores email leads from the Lead Triage Simulator
+ */
+export async function validateAndSaveSimulatorEmail(
+  rawEmail: string
+): Promise<ActionResponse<{ email: string }>> {
+  try {
+    const trimmed = (rawEmail || '').trim().toLowerCase();
+
+    // 1. Email format and disposable domain verification
+    const validation = validateEmail(trimmed);
+    if (!validation.isValid) {
+      return {
+        success: false,
+        error: validation.errorMessage || 'Please use a valid personal or business email.',
+      };
+    }
+
+    // 2. Insert into Supabase table agency_leads with source 'Lead Simulator'
+    const insertResult = await insertAgencyLead({
+      email: trimmed,
+      source: 'Lead Simulator',
+      full_name: null,
+      phone_number: null,
+    });
+
+    if (!insertResult.success) {
+      return {
+        success: false,
+        error: insertResult.error || 'Failed to record entry. Please try again.',
+      };
+    }
+
+    return {
+      success: true,
+      message: 'Analysis unlocked.',
+      data: { email: trimmed },
+    };
+  } catch (err: any) {
+    console.error('Error in validateAndSaveSimulatorEmail:', err);
+    return {
+      success: false,
+      error: 'An unexpected error occurred. Please use a valid personal or business email.',
+    };
+  }
+}
+
+/**
  * Server Action: Submits full contact / audit leads to the Supabase agency_leads table.
  */
 export async function submitAuditLead(formData: {
