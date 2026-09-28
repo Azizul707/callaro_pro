@@ -12,10 +12,30 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onCallDemoClick,
 }) => {
   return (
-    <section className="pt-16 pb-24 md:pt-24 md:pb-28 px-6">
-      <div className="max-w-[1200px] mx-auto text-center flex flex-col items-center">
+    <section className="relative pt-16 pb-24 md:pt-24 md:pb-28 px-6 overflow-hidden">
+      {/* Background Image Wrapper: Multi-Profile Trades & Home Service Professionals Collage */}
+      <div className="absolute inset-0 -z-10 w-full h-full overflow-hidden pointer-events-none select-none">
+        {/* Background Image with optimized coverage and tuned opacity */}
+        <img
+          src="https://i.ibb.co.com/XxVMPbdT/Chat-GPT-Image-Sep-28-2026-07-21-37-PM.jpg"
+          alt="Home service professionals and contractors collage"
+          referrerPolicy="no-referrer"
+          className="w-full h-full object-cover object-top opacity-35 filter contrast-125 brightness-105"
+          loading="eager"
+        />
+
+        {/* Radial Mask / Gradient Overlay: Soft center focus while allowing the tradesmen collage to pop on the sides and background */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(9,9,11,0.35)_0%,_rgba(9,9,11,0.75)_50%,_rgba(9,9,11,0.95)_85%)]"></div>
+
+        {/* Ambient Top & Bottom Vignettes for Seamless Theme Blending */}
+        <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#09090b] via-[#09090b]/70 to-transparent"></div>
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#09090b] via-[#09090b]/80 to-transparent"></div>
+      </div>
+
+      {/* Main Hero Content Container (relative z-10 for clean layering) */}
+      <div className="relative z-10 max-w-[1200px] mx-auto text-center flex flex-col items-center">
         {/* Eyebrow Pill */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface-raised border border-border-subtle mb-8 hover:border-primary/40 transition-colors">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface-raised/90 backdrop-blur-md border border-border-subtle mb-8 hover:border-primary/40 transition-colors shadow-lg">
           <span className="w-2 h-2 rounded-full bg-primary radar-pulse"></span>
           <span className="font-code text-xs text-text-muted uppercase tracking-wider">
             Founder-Direct Agency | Built by MA Hakim
@@ -23,7 +43,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
 
         {/* H1 */}
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-text-primary max-w-5xl tracking-tight leading-[1.15] mb-6">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-text-primary max-w-5xl tracking-tight leading-[1.15] mb-6 drop-shadow-sm">
           Every Missed Call Is a Lost Job. <br className="hidden sm:inline" />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-[#ff885e] to-secondary">
             Stop Letting Competitors Answer Your Customers First.
@@ -31,7 +51,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </h1>
 
         {/* H2 / Subhead */}
-        <p className="text-base sm:text-lg md:text-xl text-text-muted max-w-3xl mb-10 leading-relaxed font-normal">
+        <p className="text-base sm:text-lg md:text-xl text-text-muted max-w-3xl mb-10 leading-relaxed font-normal drop-shadow-sm">
           Callora.pro installs simple, 24/7 automated growth systems that recover missed calls, follow up with leads, collect reviews, reduce no-shows, and keep your business working—even when you're on the job site.
         </p>
 
@@ -46,7 +66,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </button>
           <a
             onClick={onCallDemoClick}
-            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-surface-card border border-border-subtle hover:border-white/20 text-text-primary font-semibold text-sm hover:bg-surface-raised transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-surface-card/90 backdrop-blur-md border border-border-subtle hover:border-white/20 text-text-primary font-semibold text-sm hover:bg-surface-raised transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg"
             href="#demo-sim"
           >
             <span className="material-symbols-outlined text-primary text-[18px]">phone_in_talk</span>
@@ -61,7 +81,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         {/* Dual Pathway Cards (Home Services / Contractors) */}
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
           {/* Pathway 1: Missed Call to Booked Job */}
-          <div className="card-border-glow bg-surface-card/80 backdrop-blur-md rounded-2xl p-6 hover:border-primary/40 transition-all duration-300">
+          <div className="card-border-glow bg-surface-card/90 backdrop-blur-md rounded-2xl p-6 hover:border-primary/40 transition-all duration-300 shadow-xl">
             <div className="flex items-center justify-between mb-4">
               <span className="px-3 py-1 rounded-full text-[11px] font-code font-bold tracking-wider bg-surface-raised text-primary uppercase border border-primary/20">
                 Pipeline 01
@@ -99,7 +119,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </div>
 
           {/* Pathway 2: Job Done to 5-Star Review & Social Post */}
-          <div className="card-border-glow bg-surface-card/80 backdrop-blur-md rounded-2xl p-6 hover:border-secondary/40 transition-all duration-300">
+          <div className="card-border-glow bg-surface-card/90 backdrop-blur-md rounded-2xl p-6 hover:border-secondary/40 transition-all duration-300 shadow-xl">
             <div className="flex items-center justify-between mb-4">
               <span className="px-3 py-1 rounded-full text-[11px] font-code font-bold tracking-wider bg-surface-raised text-secondary uppercase border border-secondary/20">
                 Pipeline 02
