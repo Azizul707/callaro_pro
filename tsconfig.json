@@ -19,6 +19,9 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "next/server": [
+        "./src/lib/next-server.ts"
       ]
     },
     "allowImportingTsExtensions": true,

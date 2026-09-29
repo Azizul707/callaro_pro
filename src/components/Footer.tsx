@@ -1,14 +1,11 @@
 'use client';
 
 import React from 'react';
-import Image from '@/src/components/ui/NextImage';
+import Logo from '@/src/components/Logo';
 
 interface FooterProps {
   onBookAuditClick: () => void;
 }
-
-const CALLORA_LOGO_URL =
-  'https://lh3.googleusercontent.com/aida/AEtjO1U7jZn5H_sMtfVJbmgCCCSYwS-Hm2PU2H_QqNT6qnkn-HqUcCPZ8flaUJr5GQPplS4MvnS8yb5_wA2i89oAvJQS4E3GsL7uga5qu3nS9N0mZCLbkZxzCGQg58a8LX-3kt5JttbIilqhOm-TSoZ6-ZkvsfuH53iGkaYBETHOhzx1kBtO2FyYA3BcE4dcT7q2qbmhumVGDnMOID4KEvCzlnH05sly4A62oTBymlorpAyphB-LqRqWnt_lqw0';
 
 export const Footer: React.FC<FooterProps> = ({ onBookAuditClick }) => {
   return (
@@ -17,13 +14,7 @@ export const Footer: React.FC<FooterProps> = ({ onBookAuditClick }) => {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pb-10 border-b border-border-subtle">
           <div className="md:col-span-5">
             <a className="inline-block mb-3 active:scale-[0.98] transition-transform" href="#">
-              <Image
-                src={CALLORA_LOGO_URL}
-                alt="Callora.pro"
-                width={140}
-                height={36}
-                className="h-9 w-auto object-contain"
-              />
+              <Logo />
             </a>
             <p className="text-xs text-text-muted mb-4 max-w-sm leading-relaxed">
               Automated Growth Systems for Contractors &amp; Home Services. Stop letting competitors answer your customers first.

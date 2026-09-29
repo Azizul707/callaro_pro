@@ -1,5 +1,6 @@
 import React from 'react';
 import { NextAppMetadata } from '@/src/types/next-seo';
+import ChatWidget from '@/src/components/ChatWidget';
 import './globals.css';
 
 export const metadata: NextAppMetadata = {
@@ -121,6 +122,7 @@ export default function RootLayout({
       </head>
       <body className="bg-[#09090b] text-[#f4f4f5] antialiased selection:bg-[#ff6a3d] selection:text-[#09090b] font-sans overflow-x-hidden min-h-screen">
         {children}
+        <ChatWidget />
       </body>
     </html>
   );

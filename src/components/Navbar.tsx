@@ -1,14 +1,11 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import Image from '@/src/components/ui/NextImage';
+import Logo from '@/src/components/Logo';
 
 interface NavbarProps {
   onBookAuditClick: () => void;
 }
-
-const CALLORA_LOGO_URL =
-  'https://lh3.googleusercontent.com/aida/AEtjO1U7jZn5H_sMtfVJbmgCCCSYwS-Hm2PU2H_QqNT6qnkn-HqUcCPZ8flaUJr5GQPplS4MvnS8yb5_wA2i89oAvJQS4E3GsL7uga5qu3nS9N0mZCLbkZxzCGQg58a8LX-3kt5JttbIilqhOm-TSoZ6-ZkvsfuH53iGkaYBETHOhzx1kBtO2FyYA3BcE4dcT7q2qbmhumVGDnMOID4KEvCzlnH05sly4A62oTBymlorpAyphB-LqRqWnt_lqw0';
 
 export const Navbar: React.FC<NavbarProps> = ({ onBookAuditClick }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -33,15 +30,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onBookAuditClick }) => {
     <div className="w-full bg-[#09090b]/90 backdrop-blur-md border-b border-border-subtle shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
       <div className="max-w-[1200px] mx-auto px-6 h-20 flex items-center justify-between">
         {/* Brand Logo */}
-        <a className="flex items-center gap-3 active:scale-[0.98] transition-transform" href="/">
-          <Image
-            src={CALLORA_LOGO_URL}
-            alt="Callora.pro"
-            width={140}
-            height={36}
-            priority
-            className="h-9 w-auto object-contain"
-          />
+        <a className="flex items-center active:scale-[0.98] transition-transform" href="/">
+          <Logo />
         </a>
 
         {/* Desktop Navigation Links */}

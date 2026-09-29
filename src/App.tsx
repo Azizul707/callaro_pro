@@ -17,6 +17,7 @@ import DailyComparison from './components/DailyComparison';
 import GatedRoiCalculator from './components/GatedRoiCalculator';
 import FaqSection from './components/FaqSection';
 import Footer from './components/Footer';
+import ChatWidget from './components/ChatWidget';
 import { SelectedServicePlan } from './components/ServiceOrderModal';
 
 // Code-split heavy below-the-fold components and standalone views
@@ -237,6 +238,9 @@ export default function App() {
           />
         )}
       </Suspense>
+
+      {/* Global Callora Assistant Live Chat Widget */}
+      <ChatWidget />
     </div>
   );
 }
